@@ -20,10 +20,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -48,7 +53,7 @@ import com.helger.xml.serialize.read.DOMReader;
  */
 public final class Genericode10EN16931CodeListMarshallerTest
 {
-  private static void _testReadAndWriteValid (@Nonnull final IReadableResource aRes)
+  private static void _testReadAndWriteValid (@Nonnull final IReadableResource aRes, @Nonnull String releaseFolder)
   {
       // Resolve resource
       assertTrue (aRes.exists ());
@@ -97,8 +102,8 @@ public final class Genericode10EN16931CodeListMarshallerTest
       aMarshaller.setNamespaceContext(aNSContext);
       aMarshaller.setFormattedOutput(true);
       String fileName = aRes.getPath().substring(aRes.getPath().lastIndexOf(File.separatorChar), aRes.getPath().length());
-      aMarshaller.write(aCLDoc, Paths.get("target" + File.separator + "generated-test-sources" + File.separator + fileName));
-
+      aMarshaller.write(aCLDoc, Paths.get("target" + File.separator + "generated-test-sources" + File.separator + releaseFolder + File.separator + fileName));
+      System.out.println("+++ Writing: " + "target" + File.separator + "generated-test-sources" + File.separator + releaseFolder + File.separator + fileName);
       final Document aDoc2 = aMarshaller.getAsDocument (aCLDoc);
       assertNotNull (aRes.getPath(), aDoc2);
 
@@ -110,9 +115,23 @@ public final class Genericode10EN16931CodeListMarshallerTest
   }
 
   @Test
-  public void testReadValid ()
-  {
-    for (final File aFile : new FileSystemIterator ("src/test/resources/external/examples/gc/v10/11_2023-05-15").withFilter (IFileFilter.filenameEndsWith (".gc")))
-      _testReadAndWriteValid (new FileSystemResource (aFile));
+  public void testReadValid () {
+      File file = new File("src/test/resources/external/examples/gc/v10/");
+      String[] directories = file.list(new FilenameFilter() {
+          @Override
+          public boolean accept(File current, String name) {
+              return new File(current, name).isDirectory();
+          }
+      });
+//2DO: REMOVE ME
+System.out.println(Arrays.toString(directories));
+
+      for (String releaseFolder : directories) {
+          System.out.println("\n\n*** Processing: " + releaseFolder);
+          for (final File aFile : new FileSystemIterator("src/test/resources/external/examples/gc/v10/" + releaseFolder).withFilter(IFileFilter.filenameEndsWith(".gc"))){
+              System.out.println("*** Reading: " + aFile.getName());
+              _testReadAndWriteValid(new FileSystemResource(aFile), releaseFolder);
+          }
+      }
   }
 }
