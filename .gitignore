@@ -9,3 +9,5 @@ generated/
 zz
 
 *.iml
+/target.old/
+.vscode/
