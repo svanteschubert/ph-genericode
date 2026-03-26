@@ -23,10 +23,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.List;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -64,7 +62,7 @@ public final class Genericode10EN16931CodeListMarshallerTest
     assertNotNull (aRes.getPath (), aDoc);
     final Genericode10CodeListMarshaller aMarshaller = new Genericode10CodeListMarshaller ();
 
-    // Read code list
+      // Read code list
     final CodeListDocument aCLDoc = aMarshaller.read (aDoc);
     assertNotNull (aRes.getPath (), aCLDoc);
 
@@ -105,9 +103,11 @@ public final class Genericode10EN16931CodeListMarshallerTest
     aMarshaller.setFormattedOutput (true);
 
     final String sFileName = FilenameHelper.getWithoutPath (aRes.getPath ());
-    final var eSuccess = aMarshaller.write (aCLDoc, new File ("generated/codelists/sorted/" + File.separator + releaseFolder + sFileName));
+    final Path aOutputPath = Paths.get ("target", "generated-test-sources", releaseFolder, sFileName);
+    aOutputPath.getParent ().toFile ().mkdirs ();
+    final var eSuccess = aMarshaller.write (aCLDoc, aOutputPath.toFile ());
     assertTrue (eSuccess.isSuccess ());
-      System.out.println("+++ Writing: " + "target" + File.separator + "generated-test-sources" + File.separator + releaseFolder + File.separator + sFileName);
+    System.out.println ("+++ Writing: " + aOutputPath.toAbsolutePath ());
     final Document aDoc2 = aMarshaller.getAsDocument (aCLDoc);
     assertNotNull (aRes.getPath (), aDoc2);
 

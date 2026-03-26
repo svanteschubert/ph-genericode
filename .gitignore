@@ -11,3 +11,4 @@ zz
 *.iml
 /target.old/
 .vscode/
+/target.*/
